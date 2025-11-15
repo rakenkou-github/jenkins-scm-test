@@ -1,53 +1,61 @@
 pipeline {
     agent any
 
-    parameters {
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['DEVELOPMENT', 'STAGING', 'PRODUCTION'],
-            description: 'Select your Environment :'
-        )
-        password(
-            name: 'APIKEY',
-            defaultValue: '123ABC',
-            description: 'Enter the api key :'
-        )
+    // this section configures Jenkins options
+    options {
 
-        text(
-            name: 'CHANGELOG',
-            description: 'Enter your changelog here:',
-            defaultValue: 'This is the default changelog.'
-        )
+        // only keep 10 logs for no more than 10 days
+        buildDiscarder(logRotator(daysToKeepStr: '10', numToKeepStr: '10'))
+
+        // cause the build to time out if it runs for more than 12 hours
+        timeout(time: 12, unit: 'HOURS')
+
+        // add timestamps to the log
+        timestamps()
     }
 
+    // this section configures triggers
+    triggers {
+          // create a cron trigger that will run the job every day at midnight
+          // note that the time is based on the time zone used by the server
+          // where Jenkins is running, not the user's time zone
+          cron '@midnight'
+    }
+
+    // the pipeline section we all know and love: stages! :D
     stages {
-        stage('Test') {
-            when {
-                expression { params.ENVIRONMENT != 'PRODUCTION' }
-            }           
+        stage('Requirements') {
             steps {
-                echo "Running tests for ${params.ENVIRONMENT} environment."
+                echo 'Installing requirements...'
             }
         }
-        stage('Deploy') {
-            when {
-                expression { params.ENVIRONMENT == 'PRODUCTION' }
-            }
+        stage('Build') {
             steps {
-               input message: "Approve deployment to PRODUCTION?", ok: "Deploy"
-               echo "Deploying to PRODUCTION environment with API Key: ${params.APIKEY}"
+                echo 'Building..'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
             }
         }
         stage('Report') {
             steps {
-               echo "This stage generates a report for PRODUCTION deployment." 
-               sh "printf \"Changelog:\n%s\" \"${params.CHANGELOG}\" > \"${params.ENVIRONMENT}_report.txt\""
-               archiveArtifacts allowEmptyArchive: true,
-               artifacts: "${params.ENVIRONMENT}_report.txt", 
-               fingerprint: true,
-               followSymlinks: false,
-               onlyIfSuccessful: true
+                echo 'Reporting....'
             }
+        }
+    }
+
+    // the post section is a special collection of stages
+    // that are run after all other stages have completed
+    post {
+
+        // the always stage will always be run
+        always {
+
+            // the always stage can contain build steps like other stages
+            // a "steps{...}" section is not needed.
+            echo "This step will run after all other steps have finished.  It will always run, even in the status of the build is not SUCCESS"
         }
     }
 }
