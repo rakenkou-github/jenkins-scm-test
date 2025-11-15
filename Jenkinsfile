@@ -11,7 +11,7 @@ pipeline {
         timeout(time: 12, unit: 'HOURS')
     }
 
-    // this section configures triggers
+    // this section configures triggers !!
     triggers {
           // create a cron trigger that will run the job every day at midnight
           // note that the time is based on the time zone used by the server
