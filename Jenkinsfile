@@ -9,9 +9,6 @@ pipeline {
 
         // cause the build to time out if it runs for more than 12 hours
         timeout(time: 12, unit: 'HOURS')
-
-        // add timestamps to the log
-        timestamps()
     }
 
     // this section configures triggers
@@ -25,8 +22,10 @@ pipeline {
     // the pipeline section we all know and love: stages! :D
     stages {
         stage('Requirements') {
-            steps {
-                echo 'Installing requirements...'
+            timestamps {
+                steps {
+                    echo 'Installing requirements...'
+                }
             }
         }
         stage('Build') {
