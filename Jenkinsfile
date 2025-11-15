@@ -22,25 +22,31 @@ pipeline {
     // the pipeline section we all know and love: stages! :D
     stages {
         stage('Requirements') {
-            timestamps {
-                steps {
+            steps {
+                timestamps {
                     echo 'Installing requirements...'
                 }
             }
         }
         stage('Build') {
             steps {
-                echo 'Building..'
+                timestamps {
+                    echo 'Building..'
+                }
             }
         }
         stage('Test') {
             steps {
-                echo 'Testing..'
+                timestamps {
+                    echo 'Testing..'
+                }
             }
         }
         stage('Report') {
             steps {
-                echo 'Reporting....'
+                timestamps {
+                    echo 'Reporting....'
+                }
             }
         }
     }
