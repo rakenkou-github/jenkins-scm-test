@@ -11,12 +11,12 @@ pipeline {
         timeout(time: 12, unit: 'HOURS')
     }
 
-    // this section configures triggers !!
+    // this section configures triggers
     triggers {
-          // create a cron trigger that will run the job every day at midnight
-          // note that the time is based on the time zone used by the server
-          // where Jenkins is running, not the user's time zone
-          cron '@midnight'
+          // Poll SCM every 5 minutes to check for changes
+          // Format: minute hour day month dayOfWeek
+          // H/5 * * * * = every 5 minutes
+          pollSCM('H/5 * * * *')
     }
 
     // the pipeline section we all know and love: stages! :D

@@ -36,7 +36,8 @@ RUN jenkins-plugin-cli --plugins \
     git:5.8.0 \
     workflow-aggregator:596.v8c21c963d92d \
     pipeline-stage-view:2.34 \
-    blueocean:1.27.11
+    blueocean:1.27.11 \
+    timestamper:1.27
 
 # Revenir à l'utilisateur jenkins (sera override par docker-compose si besoin)
 USER jenkins
