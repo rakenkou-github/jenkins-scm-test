@@ -1,0 +1,45 @@
+FROM jenkins/jenkins:lts-jdk21
+
+USER root
+
+# Installer les dépendances nécessaires
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Ajouter la clé GPG officielle de Docker
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Configurer le dépôt Docker
+RUN echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Installer Docker CLI et Docker Compose
+RUN apt-get update && \
+    apt-get install -y docker-ce-cli docker-compose-plugin && \
+    rm -rf /var/lib/apt/lists/*
+
+# Ajouter l'utilisateur jenkins au groupe docker (sera créé au runtime)
+RUN groupadd -g 999 docker || true && \
+    usermod -aG docker jenkins || true
+
+# Installer les plugins Jenkins essentiels
+RUN jenkins-plugin-cli --plugins \
+    docker-workflow:572.v950f58993843 \
+    docker-plugin:1.6.2 \
+    git:5.8.0 \
+    workflow-aggregator:596.v8c21c963d92d \
+    pipeline-stage-view:2.34 \
+    blueocean:1.27.11
+
+# Revenir à l'utilisateur jenkins (sera override par docker-compose si besoin)
+USER jenkins
+
+# Exposer les ports
+EXPOSE 8080 50000

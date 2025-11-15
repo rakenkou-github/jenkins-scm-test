@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    image: jenkins-with-docker:latest
+    container_name: jenkins
+    user: root                          # root pour accéder à docker.sock
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Socket Docker de l'hôte
+      - //c/Formation/Learning-2026/Jenkins/pyspark-csv-project:/workspace/pyspark-csv-project  # Projet monté
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false  # Optionnel: skip setup wizard
+volumes:
+  jenkins_home:
